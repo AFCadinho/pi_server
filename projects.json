@@ -8,7 +8,7 @@
   "pi_server": {
     "path": "/home/adinho/pi_server",
     "branch": "main",
-    "deploy_command": ["bash", "./server.sh", "start"],
+    "deploy_command": ["bash", "./restart-later.sh"],
     "pull_before_command": true
   }
 }

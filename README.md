@@ -132,10 +132,12 @@ DEPLOY_TOKEN
 The workflow currently calls:
 
 ```text
-https://bots.pokemonaetheronline.com/deploy/discord-bots
+https://bots.pokemonaetheronline.com/deploy/pi_server
 ```
 
 If the project name or tunnel hostname changes, update `DEPLOY_BASE_URL` or `DEPLOY_PROJECT` in the workflow file.
+
+For self-deploying this API, `pi_server` uses `restart-later.sh`. That script schedules the restart in the background so the API can finish the deploy response and send the Discord notification before restarting.
 
 ## Deploy behavior
 

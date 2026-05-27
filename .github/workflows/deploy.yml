@@ -9,14 +9,14 @@ on:
       project:
         description: Project name from projects.json
         required: true
-        default: discord-bots
+        default: pi_server
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
       DEPLOY_BASE_URL: https://bots.pokemonaetheronline.com
-      DEPLOY_PROJECT: ${{ github.event.inputs.project || 'discord-bots' }}
+      DEPLOY_PROJECT: ${{ github.event.inputs.project || 'pi_server' }}
 
     steps:
       - name: Trigger Raspberry Pi deploy
