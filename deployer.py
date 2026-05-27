@@ -145,13 +145,22 @@ def notify_discord(
     request = urllib.request.Request(
         settings.discord_webhook_url,
         data=payload,
-        headers={"Content-Type": "application/json"},
+        headers={
+            "Content-Type": "application/json",
+            "User-Agent": "deploy-api/0.1 (+https://bots.pokemonaetheronline.com)",
+        },
         method="POST",
     )
 
     try:
         with urllib.request.urlopen(request, timeout=10) as response:
             logger.info("Discord notification sent: HTTP %s", response.status)
+    except urllib.error.HTTPError as exc:
+        body = exc.read().decode("utf-8", errors="replace")
+        message = f"HTTP {exc.code}: {_truncate(body, 500)}"
+        logger.warning("Discord notification failed: %s", message)
+        if raise_errors:
+            raise DiscordNotifyError(message) from exc
     except urllib.error.URLError as exc:
         logger.warning("Discord notification failed: %s", exc)
         if raise_errors:
