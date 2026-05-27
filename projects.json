@@ -1,6 +1,6 @@
 {
   "discord-bots": {
-    "path": "/home/pi/projects/discord-bots",
+    "path": "/home/adinho/projects/discord-bots",
     "branch": "main",
     "compose_command": ["docker", "compose"],
     "deploy_command": ["bash", "./run.sh"],
