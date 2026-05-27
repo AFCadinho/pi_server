@@ -1,6 +1,7 @@
 import logging
 import json
 import subprocess
+from time import perf_counter
 import urllib.error
 import urllib.request
 from dataclasses import dataclass
@@ -25,8 +26,18 @@ class DeployError(Exception):
         self.command_result = command_result
 
 
+def _format_command(command: list[str]) -> str:
+    return " ".join(command)
+
+
+def _truncate(value: str, limit: int) -> str:
+    if len(value) <= limit:
+        return value
+    return f"{value[: limit - 3]}..."
+
+
 def _run(command: list[str], project: ProjectConfig) -> CommandResult:
-    logger.info("Running command for %s: %s", project.name, " ".join(command))
+    logger.info("Running command for %s: %s", project.name, _format_command(command))
 
     try:
         completed = subprocess.run(
@@ -40,7 +51,7 @@ def _run(command: list[str], project: ProjectConfig) -> CommandResult:
     except FileNotFoundError as exc:
         raise DeployError(f"Command not found: {command[0]}") from exc
     except subprocess.TimeoutExpired as exc:
-        raise DeployError(f"Command timed out: {' '.join(command)}") from exc
+        raise DeployError(f"Command timed out: {_format_command(command)}") from exc
 
     result = CommandResult(
         command=command,
@@ -56,19 +67,75 @@ def _run(command: list[str], project: ProjectConfig) -> CommandResult:
 
     if result.returncode != 0:
         raise DeployError(
-            f"Command failed with exit code {result.returncode}: {' '.join(command)}",
+            f"Command failed with exit code {result.returncode}: {_format_command(command)}",
             command_result=result,
         )
 
     return result
 
 
-def notify_discord(project_name: str, status: str, message: str) -> None:
+def notify_discord(
+    project: ProjectConfig,
+    status: str,
+    message: str,
+    duration_seconds: float | None = None,
+    command_result: CommandResult | None = None,
+) -> None:
     if not settings.discord_webhook_url:
         return
 
+    is_success = status == "succeeded"
+    fields = [
+        {"name": "Project", "value": project.name, "inline": True},
+        {"name": "Branch", "value": project.branch, "inline": True},
+        {"name": "Path", "value": str(project.path), "inline": False},
+    ]
+
+    if duration_seconds is not None:
+        fields.append(
+            {
+                "name": "Duration",
+                "value": f"{duration_seconds:.1f}s",
+                "inline": True,
+            }
+        )
+
+    if command_result:
+        fields.append(
+            {
+                "name": "Command",
+                "value": f"`{_truncate(_format_command(command_result.command), 1000)}`",
+                "inline": False,
+            }
+        )
+        if command_result.stderr:
+            fields.append(
+                {
+                    "name": "stderr",
+                    "value": f"```text\n{_truncate(command_result.stderr, 990)}\n```",
+                    "inline": False,
+                }
+            )
+        elif command_result.stdout:
+            fields.append(
+                {
+                    "name": "stdout",
+                    "value": f"```text\n{_truncate(command_result.stdout, 990)}\n```",
+                    "inline": False,
+                }
+            )
+
     payload = json.dumps(
-        {"content": f"Deploy `{project_name}` {status}: {message[:1500]}"}
+        {
+            "embeds": [
+                {
+                    "title": f"Deploy {status}: {project.name}",
+                    "description": _truncate(message, 1500),
+                    "color": 0x2ECC71 if is_success else 0xE74C3C,
+                    "fields": fields,
+                }
+            ]
+        }
     ).encode("utf-8")
     request = urllib.request.Request(
         settings.discord_webhook_url,
@@ -85,8 +152,17 @@ def notify_discord(project_name: str, status: str, message: str) -> None:
 
 
 def deploy_project(project: ProjectConfig) -> dict:
+    started_at = perf_counter()
+
     if not project.path.exists() or not project.path.is_dir():
-        raise DeployError(f"Project path does not exist: {project.path}")
+        exc = DeployError(f"Project path does not exist: {project.path}")
+        notify_discord(
+            project,
+            "failed",
+            str(exc),
+            duration_seconds=perf_counter() - started_at,
+        )
+        raise exc
 
     logger.info("Starting deploy for %s in %s", project.name, project.path)
 
@@ -115,15 +191,28 @@ def deploy_project(project: ProjectConfig) -> dict:
             completed_steps.append(_run(step, project))
     except DeployError as exc:
         logger.exception("Deploy failed for %s", project.name)
-        notify_discord(project.name, "failed", str(exc))
+        notify_discord(
+            project,
+            "failed",
+            str(exc),
+            duration_seconds=perf_counter() - started_at,
+            command_result=exc.command_result,
+        )
         raise
 
     logger.info("Deploy completed for %s", project.name)
-    notify_discord(project.name, "succeeded", "completed successfully")
+    duration_seconds = perf_counter() - started_at
+    notify_discord(
+        project,
+        "succeeded",
+        "Completed successfully",
+        duration_seconds=duration_seconds,
+    )
 
     return {
         "project": project.name,
         "status": "success",
+        "duration_seconds": round(duration_seconds, 2),
         "steps": [
             {
                 "command": result.command,

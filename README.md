@@ -95,6 +95,16 @@ View logs:
 journalctl -u deploy-api -f
 ```
 
+## Discord notifications
+
+Set `DISCORD_WEBHOOK_URL` in `.env` to receive deploy success and failure messages:
+
+```env
+DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...
+```
+
+Notifications include the project name, branch, path, duration, and command output when a command fails.
+
 ## Trigger a deploy
 
 ```bash
