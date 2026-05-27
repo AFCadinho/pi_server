@@ -19,6 +19,7 @@ class ProjectConfig:
     branch: str
     compose_command: tuple[str, ...]
     deploy_command: tuple[str, ...] | None = None
+    pull_before_command: bool = False
 
 
 @dataclass(frozen=True)
@@ -61,6 +62,7 @@ def _load_projects(path: Path) -> dict[str, ProjectConfig]:
         branch = raw_project.get("branch", "main")
         compose_command = raw_project.get("compose_command", ["docker", "compose"])
         deploy_command = raw_project.get("deploy_command")
+        pull_before_command = raw_project.get("pull_before_command", False)
 
         if not isinstance(project_path, str) or not project_path:
             raise RuntimeError(f"Project {name} must have a non-empty path")
@@ -82,6 +84,8 @@ def _load_projects(path: Path) -> dict[str, ProjectConfig]:
             raise RuntimeError(
                 f"Project {name} deploy_command must be a non-empty string list"
             )
+        if not isinstance(pull_before_command, bool):
+            raise RuntimeError(f"Project {name} pull_before_command must be a boolean")
 
         projects[name] = ProjectConfig(
             name=name,
@@ -89,6 +93,7 @@ def _load_projects(path: Path) -> dict[str, ProjectConfig]:
             branch=branch,
             compose_command=tuple(compose_command),
             deploy_command=tuple(deploy_command) if deploy_command else None,
+            pull_before_command=pull_before_command,
         )
 
     return projects

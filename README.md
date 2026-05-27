@@ -51,12 +51,14 @@ If a project already has a deploy script, use `deploy_command`:
 {
   "my-app": {
     "path": "/home/pi/projects/my-app",
-    "deploy_command": ["bash", "./start.sh"]
+    "branch": "main",
+    "deploy_command": ["bash", "./start.sh"],
+    "pull_before_command": true
   }
 }
 ```
 
-`deploy_command` runs from the configured project directory. When it is set, the API runs only that command and skips the default git and Docker Compose steps.
+`deploy_command` runs from the configured project directory. When `pull_before_command` is true, the API first fetches, checks out, and pulls the configured branch, then runs the command. When `pull_before_command` is false or omitted, it runs only the command.
 
 Only projects in this file can be deployed. After changing it, restart the API:
 

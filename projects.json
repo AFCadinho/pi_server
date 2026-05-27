@@ -3,6 +3,7 @@
     "path": "/home/pi/projects/discord-bots",
     "branch": "main",
     "compose_command": ["docker", "compose"],
-    "deploy_command": ["bash", "./run.sh"]
+    "deploy_command": ["bash", "./run.sh"],
+    "pull_before_command": true
   }
 }
