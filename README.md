@@ -109,6 +109,24 @@ curl "https://deploy.example.com/projects" \
   -H "Authorization: Bearer YOUR_DEPLOY_TOKEN"
 ```
 
+## GitHub Actions
+
+This repo includes `.github/workflows/deploy.yml`. It triggers the deploy endpoint on every push to `main` and can also be run manually.
+
+Add this repository secret in GitHub:
+
+```text
+DEPLOY_TOKEN
+```
+
+The workflow currently calls:
+
+```text
+https://bots.pokemonaetheronline.com/deploy/discord-bots
+```
+
+If the project name or tunnel hostname changes, update `DEPLOY_BASE_URL` or `DEPLOY_PROJECT` in the workflow file.
+
 ## Deploy behavior
 
 For the selected project, the API runs `deploy_command` when it is configured.

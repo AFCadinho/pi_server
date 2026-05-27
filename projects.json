@@ -2,8 +2,13 @@
   "discord-bots": {
     "path": "/home/adinho/projects/discord-bots",
     "branch": "main",
-    "compose_command": ["docker", "compose"],
     "deploy_command": ["bash", "./run.sh"],
+    "pull_before_command": true
+  },
+  "pi_server": {
+    "path": "/home/adinho/pi_server",
+    "branch": "main",
+    "deploy_command": ["bash", "./server.sh", "start"],
     "pull_before_command": true
   }
 }

@@ -64,8 +64,8 @@ print_recent_logs() {
 
 start_local() {
   if is_local_running; then
-    echo "${APP_NAME} is already running locally with PID $(cat "${PID_FILE}")"
-    return
+    echo "${APP_NAME} is already running locally with PID $(cat "${PID_FILE}"); restarting"
+    stop_local
   fi
   rm -f "${PID_FILE}"
 
@@ -128,7 +128,7 @@ stop_local() {
 
 start() {
   if has_systemd_service; then
-    sudo systemctl start "${SERVICE_NAME}"
+    sudo systemctl restart "${SERVICE_NAME}"
     sudo systemctl status "${SERVICE_NAME}" --no-pager
   else
     start_local

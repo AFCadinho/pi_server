@@ -1,0 +1,25 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      project:
+        description: Project name from projects.json
+        required: true
+        default: discord-bots
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      DEPLOY_BASE_URL: https://bots.pokemonaetheronline.com
+      DEPLOY_PROJECT: ${{ github.event.inputs.project || 'discord-bots' }}
+
+    steps:
+      - name: Trigger Raspberry Pi deploy
+        run: |
+          curl --fail-with-body -X POST "${DEPLOY_BASE_URL}/deploy/${DEPLOY_PROJECT}" \
+            -H "Authorization: Bearer ${{ secrets.DEPLOY_TOKEN }}"
