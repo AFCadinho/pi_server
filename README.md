@@ -60,7 +60,7 @@ PROJECTS_FILE=/path/to/projects.json ./server.sh start
 ## Run locally
 
 ```bash
-poetry run uvicorn main:app --host 127.0.0.1 --port 8080
+poetry run uvicorn main:app --host 127.0.0.1 --port 18765
 ```
 
 ## Install systemd service
@@ -113,7 +113,7 @@ Commands are executed with `subprocess.run(..., shell=False)` from the configure
 Point your Cloudflare Tunnel service to:
 
 ```text
-http://127.0.0.1:8080
+http://127.0.0.1:18765
 ```
 
 Keep the API bound to localhost on the Pi. The project code does not need the deploy token; only this deploy API reads `.env`.

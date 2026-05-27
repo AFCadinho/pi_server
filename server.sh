@@ -4,7 +4,7 @@ set -euo pipefail
 APP_NAME="deploy-api"
 APP_MODULE="main:app"
 HOST="${HOST:-127.0.0.1}"
-PORT="${PORT:-8080}"
+PORT="${PORT:-18765}"
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PID_FILE="${ROOT_DIR}/${APP_NAME}.pid"
 LOG_FILE="${ROOT_DIR}/${APP_NAME}.log"
