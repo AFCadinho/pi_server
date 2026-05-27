@@ -5,7 +5,7 @@ from fastapi import Depends, FastAPI, Header, HTTPException, status
 from fastapi.concurrency import run_in_threadpool
 
 from config import PROJECTS, settings
-from deployer import DeployError, deploy_project
+from deployer import DiscordNotifyError, DeployError, deploy_project, test_discord_notification
 
 
 logging.basicConfig(
@@ -41,6 +41,17 @@ def health() -> dict:
 @app.get("/projects", dependencies=[Depends(require_bearer_token)])
 def list_projects() -> dict:
     return {"projects": sorted(PROJECTS.keys())}
+
+
+@app.post("/discord/test", dependencies=[Depends(require_bearer_token)])
+def test_discord() -> dict:
+    try:
+        return test_discord_notification()
+    except DiscordNotifyError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"Discord webhook failed: {exc}",
+        ) from exc
 
 
 @app.post("/deploy/{project_name}", dependencies=[Depends(require_bearer_token)])

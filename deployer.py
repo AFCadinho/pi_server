@@ -26,6 +26,10 @@ class DeployError(Exception):
         self.command_result = command_result
 
 
+class DiscordNotifyError(Exception):
+    pass
+
+
 def _format_command(command: list[str]) -> str:
     return " ".join(command)
 
@@ -80,6 +84,7 @@ def notify_discord(
     message: str,
     duration_seconds: float | None = None,
     command_result: CommandResult | None = None,
+    raise_errors: bool = False,
 ) -> None:
     if not settings.discord_webhook_url:
         return
@@ -149,6 +154,28 @@ def notify_discord(
             logger.info("Discord notification sent: HTTP %s", response.status)
     except urllib.error.URLError as exc:
         logger.warning("Discord notification failed: %s", exc)
+        if raise_errors:
+            raise DiscordNotifyError(str(exc)) from exc
+
+
+def test_discord_notification() -> dict:
+    if not settings.discord_webhook_url:
+        return {"configured": False, "sent": False}
+
+    project = ProjectConfig(
+        name="deploy-api",
+        path=settings.project_root,
+        branch="main",
+        compose_command=("docker", "compose"),
+    )
+    notify_discord(
+        project,
+        "succeeded",
+        "Discord webhook test message from deploy API",
+        duration_seconds=0,
+        raise_errors=True,
+    )
+    return {"configured": True, "sent": True}
 
 
 def deploy_project(project: ProjectConfig) -> dict:

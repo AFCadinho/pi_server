@@ -26,6 +26,7 @@ class ProjectConfig:
 class Settings:
     deploy_token: str
     discord_webhook_url: str | None
+    project_root: Path
 
 
 def _required_env(name: str) -> str:
@@ -38,6 +39,7 @@ def _required_env(name: str) -> str:
 settings = Settings(
     deploy_token=_required_env("DEPLOY_TOKEN"),
     discord_webhook_url=os.getenv("DISCORD_WEBHOOK_URL") or None,
+    project_root=BASE_DIR,
 )
 
 

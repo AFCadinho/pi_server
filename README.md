@@ -105,6 +105,13 @@ DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...
 
 Notifications include the project name, branch, path, duration, and command output when a command fails.
 
+Test the webhook through the API:
+
+```bash
+curl -X POST "https://deploy.example.com/discord/test" \
+  -H "Authorization: Bearer YOUR_DEPLOY_TOKEN"
+```
+
 ## Trigger a deploy
 
 ```bash
