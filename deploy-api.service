@@ -1,0 +1,17 @@
+[Unit]
+Description=Raspberry Pi Deploy API
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+WorkingDirectory=/home/pi/deploy-api
+EnvironmentFile=/home/pi/deploy-api/.env
+ExecStart=/usr/bin/poetry run uvicorn main:app --host 127.0.0.1 --port 8080
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

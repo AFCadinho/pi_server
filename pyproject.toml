@@ -1,0 +1,21 @@
+[project]
+name = "deploy-api"
+version = "0.1.0"
+description = "Small FastAPI deploy API for Raspberry Pi Docker Compose projects."
+readme = "README.md"
+requires-python = ">=3.11,<4.0"
+authors = [
+    {name = "Your Name", email = "you@example.com"},
+]
+dependencies = [
+    "fastapi==0.115.6",
+    "uvicorn[standard]==0.34.0",
+    "python-dotenv==1.0.1",
+]
+
+[tool.poetry]
+package-mode = false
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

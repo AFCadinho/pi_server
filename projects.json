@@ -1,0 +1,7 @@
+{
+  "example-app": {
+    "path": "/home/pi/projects/example-app",
+    "branch": "main",
+    "compose_command": ["docker", "compose"]
+  }
+}
