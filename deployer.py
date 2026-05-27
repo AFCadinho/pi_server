@@ -90,13 +90,16 @@ def deploy_project(project: ProjectConfig) -> dict:
 
     logger.info("Starting deploy for %s in %s", project.name, project.path)
 
-    steps = [
-        ["git", "fetch", "origin", project.branch],
-        ["git", "checkout", project.branch],
-        ["git", "pull", "--ff-only", "origin", project.branch],
-        [*project.compose_command, "down"],
-        [*project.compose_command, "up", "-d", "--build"],
-    ]
+    if project.deploy_command:
+        steps = [list(project.deploy_command)]
+    else:
+        steps = [
+            ["git", "fetch", "origin", project.branch],
+            ["git", "checkout", project.branch],
+            ["git", "pull", "--ff-only", "origin", project.branch],
+            [*project.compose_command, "down"],
+            [*project.compose_command, "up", "-d", "--build"],
+        ]
 
     completed_steps: list[CommandResult] = []
 

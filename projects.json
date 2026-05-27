@@ -1,7 +1,8 @@
 {
-  "example-app": {
-    "path": "/home/pi/projects/example-app",
+  "discord-bots": {
+    "path": "/home/pi/projects/discord-bots",
     "branch": "main",
-    "compose_command": ["docker", "compose"]
+    "compose_command": ["docker", "compose"],
+    "deploy_command": ["bash", "./run.sh"]
   }
 }

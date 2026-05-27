@@ -45,6 +45,19 @@ Then edit `projects.json` and add your projects:
 }
 ```
 
+If a project already has a deploy script, use `deploy_command`:
+
+```json
+{
+  "my-app": {
+    "path": "/home/pi/projects/my-app",
+    "deploy_command": ["bash", "./start.sh"]
+  }
+}
+```
+
+`deploy_command` runs from the configured project directory. When it is set, the API runs only that command and skips the default git and Docker Compose steps.
+
 Only projects in this file can be deployed. After changing it, restart the API:
 
 ```bash
@@ -96,7 +109,8 @@ curl "https://deploy.example.com/projects" \
 
 ## Deploy behavior
 
-For the selected project, the API runs:
+For the selected project, the API runs `deploy_command` when it is configured.
+Otherwise, it runs:
 
 ```bash
 git fetch origin <branch>
